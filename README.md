@@ -36,11 +36,10 @@ npx skills use cyf112233/miuix-agent-skill --skill miuix-ui | claude   # 不装�
 <summary>DeepSeek Harness（DSH）用户注意</summary>
 
 - **项目级可用**：CLI 默认装到 `./.agents/skills/`，而 `.agents/skills` 是 DSH 的发现根之一，装完即可用。
-- **全局级要手动**：CLI 的 `-g` 落在 `~/.config/agents/skills/`，**DSH 不读这个路径**。改用：
+- **全局级要手动**：CLI 的 `-g` 落在 `~/.config/agents/skills/`，**DSH 不读这个路径**。改用 `git clone` 到 DSH 的全局根：
 
   ```bash
-  git clone https://github.com/cyf112233/miuix-agent-skill.git ~/.agents/skills/miuix-ui
-  # 或：~/.dsh/skills/miuix-ui
+  git clone https://github.com/cyf112233/miuix-agent-skill.git ~/.dsh/skills/miuix-ui
   ```
 
 - 兜底事实：skill 就是目录约定 `<skills 根>/miuix-ui/SKILL.md`，任何 agent 都可以这样放。
