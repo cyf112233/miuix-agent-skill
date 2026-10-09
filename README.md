@@ -2,6 +2,23 @@
 
 给 AI 编程 agent 用的 **Miuix** 界面构建技能包：让 agent 按统一的布局、配色、组件规范产出 Miuix（小米 HyperOS 设计规范 · Compose Multiplatform）界面，而不是凭记忆瞎写 API。
 
+## 效果
+
+以下界面由 **DeepSeek Harness** + **DeepSeek v4.1 Flash（high 思考强度）** 配合本 skill 生成，未做手工布局调整：
+
+<table>
+  <tr>
+    <td><img src="image/01.jpg" width="220" alt=""></td>
+    <td><img src="image/02.jpg" width="220" alt=""></td>
+    <td><img src="image/03.jpg" width="220" alt=""></td>
+  </tr>
+  <tr>
+    <td><img src="image/04.jpg" width="220" alt=""></td>
+    <td><img src="image/05.jpg" width="220" alt=""></td>
+    <td><img src="image/06.jpg" width="220" alt=""></td>
+  </tr>
+</table>
+
 ## 安装
 
 用 [vercel-labs/skills](https://github.com/vercel-labs/skills) 的通用 CLI（支持 Claude Code、Codex、Cursor、OpenCode 等 80+ agent）：
