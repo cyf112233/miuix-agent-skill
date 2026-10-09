@@ -1,0 +1,6 @@
+# 开发/校验用的临时产物（校验脚本依赖本地克隆的 miuix 源码，不随仓库分发）
+/node_modules/
+/verify-skill.mjs
+/reviews/
+/notes/
+.DS_Store

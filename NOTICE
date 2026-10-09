@@ -1,0 +1,21 @@
+miuix-agent-skill
+Copyright 2026 cyf112233 <frank13967973981@163.com>
+
+This product is an agent skill (documentation plus a small Node.js lint script)
+that teaches an AI coding agent to build user interfaces with Miuix
+(the Compose Multiplatform UI library for Xiaomi HyperOS).
+
+It is an independent work. It is NOT affiliated with, endorsed by, or
+sponsored by the Miuix project, Xiaomi, or any of the open-source projects
+whose public source code was inspected while researching its conventions.
+
+Third-party material
+--------------------
+- The component APIs, signatures and default values documented here were read
+  from compose-miuix-ui/miuix (Apache-2.0).
+- The layout conventions were researched by inspecting publicly available
+  source code of several third-party applications. Those applications remain
+  under their own licenses; only conventions and measurements were derived from
+  them, and the code samples in this repository are illustrative
+  re-implementations rather than copies. See the "来源与致谢" section of
+  README.md for the list.
