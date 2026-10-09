@@ -18,59 +18,37 @@ agent：→ 读 SKILL.md 选定「设置页」场景 → 按 preferences.md §1 
 
 ## 安装
 
-### 通用方式（推荐，支持 80+ agent）
-
-用 [vercel-labs/skills](https://github.com/vercel-labs/skills) 提供的 CLI：
+用 [vercel-labs/skills](https://github.com/vercel-labs/skills) 的通用 CLI（支持 Claude Code、Codex、Cursor、OpenCode 等 80+ agent）：
 
 ```bash
-# 装到当前项目（./<agent>/skills/）
+# 装到当前项目
 npx skills add cyf112233/miuix-agent-skill
 
-# 装到全局（~/<agent>/skills/）
+# 装到全局
 npx skills add cyf112233/miuix-agent-skill -g
 
 # 只装到指定 agent
 npx skills add cyf112233/miuix-agent-skill -a claude-code -a cursor -a opencode
 
-# 先看看这个仓库里有什么，不安装
+# 先看看仓库里有什么，不安装
 npx skills add cyf112233/miuix-agent-skill --list
 ```
 
-用法速查：`npx skills list` 看已装、`npx skills update` 升级、`npx skills remove miuix-ui` 卸载。
-也可以完全不安装，让它现场生成提示词：
+装完用 `npx skills list` 查看、`npx skills update` 升级、`npx skills remove miuix-ui` 卸载。
+不想安装、只想临时用一次：
 
 ```bash
 npx skills use cyf112233/miuix-agent-skill --skill miuix-ui | claude
 ```
 
-### DSH（DeepSeek Harness）
+<details>
+<summary>如果目标 agent 不在 CLI 的列表里</summary>
 
-DSH 的 skills 根是 `$DSH_HOME/skills` 与 `<项目>/.agents/skills`，直接克隆成技能目录即可（目录名就是技能名）：
+skill 只是一个目录约定：`<agent 的 skills 根>/miuix-ui/SKILL.md`。用 git 放进对应目录即可，例如
+`git clone https://github.com/cyf112233/miuix-agent-skill.git ~/.dsh/skills/miuix-ui`。
+常见根：`.agents/skills/`、`~/.agents/skills/`、`~/.claude/skills/`、`~/.dsh/skills/`。
 
-```bash
-git clone https://github.com/cyf112233/miuix-agent-skill.git ~/.dsh/skills/miuix-ui
-```
-
-### 手动安装（任何 agent）
-
-skill 只是一个目录约定，没有魔法。放进你的 agent 的 skills 根就行：
-
-```bash
-git clone https://github.com/cyf112233/miuix-agent-skill.git <你的 skills 根>/miuix-ui
-```
-
-仓库也自带一个安装脚本，覆盖常见根并做安装后校验：
-
-```bash
-bash install.sh                 # → $DSH_HOME/skills/miuix-ui
-bash install.sh --agents        # → ~/.agents/skills/miuix-ui
-bash install.sh --claude        # → ~/.claude/skills/miuix-ui
-bash install.sh --project       # → <git 项目根>/.dsh/skills/miuix-ui
-bash install.sh --all           # 以上都装
-bash install.sh --uninstall     # 卸载（作用范围与上面的选择器一致）
-```
-
-常见 skills 根：`.agents/skills/`、`~/.agents/skills/`、`~/.claude/skills/`、`~/.dsh/skills/`、`.claude/skills/`。
+</details>
 
 ## 结构
 
