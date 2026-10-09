@@ -116,5 +116,5 @@ node scripts/miuix-lint.mjs <你的项目目录>
 许可：[Apache License 2.0](LICENSE)。**再分发或发布衍生作品时必须保留 `LICENSE` 与 `NOTICE`（含署名）并声明修改**（LICENSE 第 4 条）；纯内部使用不受署名约束。
 
 ```
-Copyright 2026 cyf112233 <frank13967973981@163.com>
+Copyright 2026 cyf112233
 ```

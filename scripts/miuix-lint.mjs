@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // SPDX-License-Identifier: Apache-2.0
-// Copyright 2026 cyf112233 <frank13967973981@163.com>
+// Copyright 2026 cyf112233
 //
 // miuix-agent-skill — https://github.com/cyf112233/miuix-agent-skill
 // miuix-lint — 零依赖静态检查，专治「AI 写的 Miuix 代码」常见问题。
