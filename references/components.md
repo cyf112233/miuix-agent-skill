@@ -16,6 +16,100 @@
 
 ---
 
+## 0. 内容色（contentColor）：谁替你传，谁不传
+
+**最容易踩的坑**。`Icon` 的 `tint` 默认是 `LocalContentColor.current`，`Text` 不传 `color` 时也用当前内容色。
+Miuix 只有这几个组件会**主动**设置内容色（源码里搜 `LocalContentColor provides` 就是这几个）：
+
+| 会传 ✅ | 不会传 ❌ |
+| :-- | :-- |
+| `Button`（含 `TextButton`）、`Card`、`Surface`、`Snackbar`、`Badge`、`Tooltip`，以及根 `MiuixTheme` | **`FloatingActionButton`**、**`IconButton`**、**`Overlay*` / `Window*` 的 `content`**、**任何 `squircleSurface(...)` 容器** |
+
+不会传的组件里，`Icon` / `Text` 会**继承页面环境色**（`onSurface` / `onBackground`）——于是出现
+**「浅色模式图标变黑、深色模式变白」**，跟容器底色没关系。
+
+### 判断口诀
+
+> **你设了底色，就得自己设内容色。** 反过来说：只要 `containerColor` / `backgroundColor` / `color` 是你传的，
+> 就要同时保证里面的 `Icon` 有 `tint`、`Text` 有 `color`。
+
+### 逐个修法
+
+```kotlin
+// ① FloatingActionButton：icons 必须自己给 tint
+FloatingActionButton(onClick = { /* … */ }) {
+    Icon(
+        imageVector = MiuixIcons.Add,
+        contentDescription = "添加",
+        tint = MiuixTheme.colorScheme.onPrimary,   // ← 不加就是「随深浅模式变色」的 bug
+    )
+}
+
+// ② IconButton 指定了 backgroundColor 时同理
+IconButton(
+    onClick = { /* … */ },
+    backgroundColor = MiuixTheme.colorScheme.primary,
+) {
+    Icon(MiuixIcons.Delete, contentDescription = "删除", tint = MiuixTheme.colorScheme.onPrimary)
+}
+
+// ③ OverlayDialog / OverlayBottomSheet 传了 backgroundColor 时，content 里要自己给色
+OverlayDialog(
+    show = show,
+    title = "提示",
+    backgroundColor = MiuixTheme.colorScheme.tertiaryContainer,
+    onDismissRequest = { show = false },
+) {
+    Text(
+        text = "内容",
+        color = MiuixTheme.colorScheme.onTertiaryContainer,   // ← content 不继承底色
+    )
+    TextButton("知道了", onClick = { show = false })   // Button 自带内容色，不用管
+}
+
+// ④ Card：用 contentColor 参数一次搞定
+Card(
+    colors = CardDefaults.defaultColors(
+        color = MiuixTheme.colorScheme.primary,
+        contentColor = MiuixTheme.colorScheme.onPrimary,
+    ),
+) { Text("标题") }   // 自动是 onPrimary
+
+// ⑤ Surface：同样有 contentColor
+Surface(
+    color = MiuixTheme.colorScheme.primary,
+    contentColor = MiuixTheme.colorScheme.onPrimary,
+) { Icon(MiuixIcons.Ok, contentDescription = null) }
+
+// ⑥ 自己用 squircleSurface 画容器：没有 contentColor 参数，只能逐个给，
+//    或用 Surface 包一层把内容色一次性设好
+Surface(
+    color = MiuixTheme.colorScheme.primary,
+    contentColor = MiuixTheme.colorScheme.onPrimary,
+    modifier = Modifier.squircleSurface(MiuixTheme.colorScheme.primary, 24.dp),
+) { Icon(MiuixIcons.Ok, contentDescription = null) }
+```
+
+### 底色 → 内容的配对（只用语义色，别写死）
+
+| 底色 | 内容色 |
+| :-- | :-- |
+| `primary`、`primaryVariant` | `onPrimary` |
+| `primaryContainer` | `onPrimaryContainer` |
+| `secondary` | `onSecondary` |
+| `secondaryVariant` | `onSecondaryVariant` |
+| `tertiaryContainer` | `onTertiaryContainer` |
+| `error` | `onError` |
+| `errorContainer` | `onErrorContainer` |
+| `surfaceContainer` | `onSurfaceContainer` |
+| `surfaceContainerHigh` | `onSurfaceContainerHigh` |
+| 自定义品牌色（自己写 `isDark` 分支时） | **必须同时给前景色**，否则深色下必糊 |
+
+`miuix-lint.mjs` 的 `W8` 会扫这个坑（`FloatingActionButton` / `IconButton(backgroundColor)` /
+`OverlayDialog|OverlayBottomSheet(backgroundColor)` 里的 `Icon` 缺 `tint`）。
+
+---
+
 ## 1. 容器
 
 ### `Card`

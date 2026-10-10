@@ -24,7 +24,7 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 
 ---
 
-## 1. 十四条铁律
+## 1. 十五条铁律
 
 违反任意一条就算返工。$
 
@@ -42,6 +42,7 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 12. **状态用 `rememberSaveable`/ViewModel**，不要用全局可变单例；`LazyColumn` 的 `items` 要给稳定 `key`。
 13. **`NavigationBar` 只在主框架建一次**。Tab 页**可以**有自己到 `Scaffold`（官方 example 的 `MainPage.kt` 就是这样），但**不要再建一个底部导航栏**，否则叠两层、insets 双算。Tab 内建 `Scaffold` 时注意：会上移 insets 作用域并自带 popup host，别和外层宿主打架。详见 `scenario-shell.md`。
 14. **破坏性操作必须二次确认**（`OverlayDialog`）；校验失败要给出可见的错误文案，不能只静默禁用按钮。
+15. **你设了底色，就得自己设内容色**：`Icon` 的 `tint` 默认是 `LocalContentColor.current`，而只有 `Badge`/`Button`(含 `TextButton`)/`Card`/`Snackbar`/`Surface`/`Tooltip` 会替你传内容色。**`FloatingActionButton`、`IconButton`、`OverlayDialog`/`OverlayBottomSheet` 的 `content`、以及任何 `squircleSurface(...)` 容器都不传** —— 里面的 `Icon`/`Text` 会继承页面环境色（浅色下变黑、深色下变白）。详见 `components.md` §0。
 
 ---
 
@@ -249,8 +250,35 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 ## 7. 工具
 
 ```bash
-# 静态检查：Material 残留、硬编码颜色、被淘汰的旧 API、缺失的滚动修饰符、未 import 的图标
-node scripts/miuix-lint.mjs <项目或源码目录>
+node scripts/miuix-lint.mjs <项目或源码目录> [更多目录…] [--quiet]
 ```
 
-- `scripts/miuix-lint.mjs`：零依赖 Node 脚本，给出 `文件:行` 级别的问题与修复建议。退出码非 0 表示有 error。
+零依赖 Node 脚本，输出 `文件:行` + 修法。**只有 `E2`/`E3` 是 error**（会编译失败或 API 已移除），其余是风格建议：
+
+| 码 | 检查 |
+| :-- | :-- |
+| `E2` | 已移除的旧版 miuix API（附迁移建议） |
+| `E3` | `MiuixIcons.X` 缺少 import（编译错误） |
+| `M1` | `androidx.compose.material3` / material icons 残留 |
+| `W1` | 硬编码颜色（`Color(0xFF…)`、`Color.Black` 等） |
+| `W2` | `TopAppBar` 未传 `scrollBehavior` |
+| `W3` | `LazyColumn` 等缺滚动修饰符 / 未设 `overscrollEffect = null` |
+| `W4` | `Overlay*` 缺 `Scaffold` 宿主（**跨文件判定**，见下） |
+| `W5` | `Card` 横向 padding 不在 {12, 16} 内 |
+| `W6` | 分组 `Card` 内 Preference 行之间的分割线没有横向内边距 |
+| `W7` | 已有 `TopAppBar` 却又用 `statusBarsPadding()` |
+| `W8` | 有色容器里 `Icon` 缺 `tint`（浅色变黑 / 深色变白，见 `components.md` §0） |
+
+### 豁免
+
+任意检查都可以压掉：行内 `// miuix-lint:allow`，或按检查项 `// miuix-lint:allow-<码>`（如 `// miuix-lint:allow-scaffold`，作用于整个文件）。
+
+### `W4` 是跨文件判定的
+
+`Overlay*` 的 `requiresScaffoldHost = true`，但宿主可以在**别的文件**里（很多项目写一个共享页面容器）。所以它会先预扫描整个被扫描目录，识别「共享 Scaffold 宿主」——名字含 `Scaffold` 的可组合函数，以及任何声明于含 `Scaffold(` 文件中的函数——**确认项目里不存在任何 Scaffold 容器**时才报。被跳过的数量会打印出来，不静默：
+
+```
+W4 跳过 10 处 Overlay*：10 处因检出共享 Scaffold 宿主（MiuixPageScaffold）。
+```
+
+容器在**未被扫描的模块**里时（例如只传了 `app/` 而容器在 `:core:ui`），把两个目录都传给脚本，或在文件里加 `// miuix-lint:allow-scaffold`。`window.Window*` 族 `requiresScaffoldHost = false`，本来就不检查。
