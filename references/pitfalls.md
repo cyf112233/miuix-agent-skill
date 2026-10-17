@@ -2,7 +2,7 @@
 
 ---
 
-## 1. 反模式清单（AI 最容易犯的 20 个）
+## 1. 反模式清单（AI 最容易犯的那些）
 
 ### 主题与颜色
 
@@ -25,6 +25,9 @@
 | `Icons.Default.Settings` | 图标风格不一致 | `MiuixIcons.Settings`（记得逐个 import） |
 | `Icon(MiuixIcons.Home)` 未 import | `Unresolved reference` | `import top.yukonga.miuix.kmp.icon.extended.Home` |
 | `Icon(MiuixIcons.Link, contentDescription = "")` | 无障碍 lint 报错 | 装饰性用 `null`，功能性写文案 |
+| 在 `ArrowPreference(endActions = { SwitchPreference(...) })` 里塞一个 Preference | **运行时崩**：`IllegalArgumentException: maxWidth must be >= than minWidth`（`BasicComponent` 的 `maxIntrinsicHeight` 里） | 开关行直接 `SwitchPreference(startAction = …)`；箭头行直接 `ArrowPreference`。`endActions` 只放 `Icon`/`Text` 这类叶子节点 |
+| 主按钮直接 `Button(onClick)` | **默认灰底**（`secondaryVariant`），看起来像禁用 | `colors = ButtonDefaults.buttonColors(color = colorScheme.primary, contentColor = colorScheme.onPrimary)` |
+| 给每个快捷入口配一种颜色（绿/黄/红/紫圆形图标底） | 一眼不像原生；Miuix 只有 primary + error 两个强语义色 | 图标底统一 `tertiaryContainer` + `primary`，或 `surfaceContainerHigh` + `onSurface`；状态色只留给状态卡（`status-colors.md`） |
 
 ### 布局
 

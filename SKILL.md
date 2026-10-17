@@ -1,13 +1,13 @@
 ---
 name: miuix-ui
-description: "用 Miuix（小米 HyperOS 设计规范的 Compose Multiplatform UI 库，top.yukonga.miuix.kmp）构建界面。按 8 个通用场景组织（主框架/多 Tab、首页/仪表盘、通用列表、信息展示、表单/编辑、状态页、自适应、引导与权限），设置页单独成篇。结构约定来自官方 example 与 8 个真实开源项目的交叉比对；SKILL.md 内按「库默认值 / 多数派惯例 / 单项目偏好 / 已被证伪」四级标注来源强度，不把单项目偏好当规范。覆盖依赖版本、MiuixTheme/ThemeController 配色与文本样式、Scaffold + TopAppBar + LazyColumn 页面骨架、SmallTitle + Card + XxxPreference 分组列表、对话框/底部抽屉/下拉菜单、miuix-nav 导航、icons、squircle/blur/overscroll、旧版 API 迁移，以及一个配套的零依赖 lint。适用于任何要求 miuix 风格、HyperOS 风格、小米原生观感的 Compose/KMP/Android 界面任务：写首页、写列表页、写关于/信息页、写表单、做设置页、搭 Tab 框架、处理空/加载/错误/权限态、适配大屏与折叠屏、调主题配色，或把 Material 界面迁移到 Miuix。Triggers: miuix, MiuixTheme, HyperOS UI, 小米风格, 澎湃 UI, mui 界面, 写个设置页, 写个首页, 写个列表页, 用 miuix 做个页面, miuix 主题, miuix 组件, top.yukonga.miuix."
+description: "用 Miuix（小米 HyperOS 设计规范的 Compose Multiplatform UI 库，top.yukonga.miuix.kmp）构建界面。按 8 个通用场景组织（主框架/多 Tab、首页/仪表盘、通用列表、信息展示、表单/编辑、状态页、自适应、引导与权限），设置页单独成篇。结构约定来自官方 example 与 8 个真实开源项目的交叉比对；SKILL.md 内按「库默认值 / 多数派惯例 / 单项目偏好 / 已被证伪」四级标注来源强度，不把单项目偏好当规范。覆盖依赖版本、MiuixTheme/ThemeController 配色与文本样式、Scaffold + TopAppBar + LazyColumn 页面骨架、SmallTitle + Card + XxxPreference 分组列表、对话框/底部抽屉/下拉菜单、miuix-nav 导航、icons、squircle/blur/overscroll、旧版 API 迁移，一个配套的零依赖 lint（E2/E3 + W1–W9），以及 11 张真实渲染截图 + 11 个编译通过的样张源码。状态卡的红/黄/绿有专门一章（Miuix 没有 success/warning token，这里给出 InstallerX / lyricon / OShin / Updater 四个项目的取值与出处）。适用于任何要求 miuix 风格、HyperOS 风格、小米原生观感的 Compose/KMP/Android 界面任务：写首页、写列表页、写关于/信息页、写表单、做设置页、搭 Tab 框架、处理空/加载/错误/权限态、适配大屏与折叠屏、调主题配色，或把 Material 界面迁移到 Miuix。Triggers: miuix, MiuixTheme, HyperOS UI, 小米风格, 澎湃 UI, mui 界面, 写个设置页, 写个首页, 写个列表页, 用 miuix 做个页面, miuix 主题, miuix 组件, top.yukonga.miuix."
 ---
 
 # 用 Miuix 构建界面
 
 Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android / iOS / Desktop / macOS / Wasm / JS）。
 
-**本 skill 的所有约定都来自「官方文档 + 官方 example + 8 个真实开源项目」中反复出现的统一写法**，而不是个人偏好：
+**本 skill 的约定来自「官方文档 + 官方 example + 7 个真实开源项目」中反复出现的统一写法**，而不是个人偏好。（XiaomiHelper 未声明 miuix 依赖，只能作反面参考，见 §2「已被证伪」。）
 
 | 项目 | miuix 版本 | 用途 |
 | :-- | :-- | :-- |
@@ -15,7 +15,7 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 | [lyricon](https://github.com/proify/lyricon) | 0.9.3 | 现代 0.9.x API + 自定义容器 |
 | [Updater-KMP](https://github.com/YuKongA/Updater-KMP) | 0.9.4 | KMP + 对话框 + 表单 |
 | [HyperStar](https://github.com/YunZiA/HyperStar) | 0.9.0 | 复杂布局 + 模糊背景 |
-| [XiaomiHelper](https://github.com/HowieHChen/XiaomiHelper) | 0.9.x | 大量设置页 |
+| [XiaomiHelper](https://github.com/HowieHChen/XiaomiHelper) | 0.9.x | ⚠️ 不可作结构证据：未声明 miuix 依赖、0 个 `Scaffold` |
 | [OShin](https://github.com/suqix8/OShin) | 0.5.2 | 旧 API（含迁移参考） |
 | [StatusBarLyric](https://github.com/Block-Network/StatusBarLyric) | 0.4.3 | 旧 API（含迁移参考） |
 | [Payload-Dumper-Compose](https://github.com/rcmiku/Payload-Dumper-Compose) | 0.3.4 | 旧 API 最小示例 |
@@ -24,9 +24,9 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 
 ---
 
-## 1. 十五条铁律
+## 1. 十六条铁律
 
-违反任意一条就算返工。$
+违反任意一条就算返工。
 
 1. **颜色只来自 `MiuixTheme.colorScheme.*`，文本样式只来自 `MiuixTheme.textStyles.*`。** 禁止 `Color(0xFF...)` 字面量（品牌色/图标底色等确有必要的除外，且必须注释原因）。
 2. **不要用 Material 组件**（`androidx.compose.material3.*` 的 `Scaffold`/`Text`/`Card`/`TopAppBar`/`Icon`/`TextButton`…）。Miuix 有同名组件，导入 `top.yukonga.miuix.kmp.basic.*`。**首选 Miuix，不要混排**——真实项目里确有例外（lyricon 从 material3 借了一个 `Icon`，InstallerX 有 84 个文件带 Material），但那是迁移期妥协，不是目标状态。
@@ -43,6 +43,25 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 13. **`NavigationBar` 只在主框架建一次**。Tab 页**可以**有自己到 `Scaffold`（官方 example 的 `MainPage.kt` 就是这样），但**不要再建一个底部导航栏**，否则叠两层、insets 双算。Tab 内建 `Scaffold` 时注意：会上移 insets 作用域并自带 popup host，别和外层宿主打架。详见 `scenario-shell.md`。
 14. **破坏性操作必须二次确认**（`OverlayDialog`）；校验失败要给出可见的错误文案，不能只静默禁用按钮。
 15. **你设了底色，就得自己设内容色**：`Icon` 的 `tint` 默认是 `LocalContentColor.current`，而只有 `Badge`/`Button`(含 `TextButton`)/`Card`/`Snackbar`/`Surface`/`Tooltip` 会替你传内容色。**`FloatingActionButton`、`IconButton`、`OverlayDialog`/`OverlayBottomSheet` 的 `content`、以及任何 `squircleSurface(...)` 容器都不传** —— 里面的 `Icon`/`Text` 会继承页面环境色（浅色下变黑、深色下变白）。详见 `components.md` §0。
+16. **一屏只用「黑白灰 + 一个强调色」，唯一的例外是状态卡。** 除状态卡外，不要给快捷入口 / 列表图标底 / 卡片配第二种颜色：图标底座要么 `tertiaryContainer` + `primary`，要么 `surfaceContainerHigh` + `onSurface`。状态卡的红/黄/绿是**整卡换底**、容器与强调色成对定义、深浅各一套，规则与出处见 `references/status-colors.md`。另外 `Button` 默认是**灰底**（`secondaryVariant`），主 CTA 必须显式 `colors = ButtonDefaults.buttonColors(color = colorScheme.primary, contentColor = colorScheme.onPrimary)`。
+
+### 先看一眼目标长什么样（这些是真实渲染，不是手绘稿）
+
+| 首页 | 设置 | 状态卡三态 |
+| :--: | :--: | :--: |
+| ![首页](assets/screens/home.png) | ![设置](assets/screens/settings.png) | ![状态卡三态](assets/screens/status-cards.png) |
+
+| 列表 | 关于 | 表单 |
+| :--: | :--: | :--: |
+| ![列表](assets/screens/list.png) | ![关于](assets/screens/info.png) | ![表单](assets/screens/form.png) |
+
+| 空态 | 引导 | 设置 + 弹窗 |
+| :--: | :--: | :--: |
+| ![空态](assets/screens/state.png) | ![引导](assets/screens/onboarding.png) | ![设置弹窗](assets/screens/settings-dialog.png) |
+
+全部 11 张截图（含深色 `home-dark.png` / `settings-dark.png`）由 `references/showcase/` 的源码
+在 **miuix 0.9.4** 上编译并离线渲染而来：`references/showcase.md`。
+截图是**结构与观感的基准**，不是像素级设计稿——尺寸、间距仍以本文档的数值为准。
 
 ---
 
@@ -153,6 +172,8 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 | 下拉选择（设置项内） | `OverlaySpinnerPreference`（高级）/ `OverlayDropdownPreference`（简单） | Material `ExposedDropdownMenu` |
 | 自定义设置行 | `BasicComponent` | 手搓 `Row` |
 | 内容卡片 / 分组容器 | `Card` | Material `Card` |
+| 状态卡（正常/注意/异常） | `StatusCard` 模式：整卡换底 + 出血圆环图标（`references/status-colors.md`） | 给每个入口配一种颜色 |
+| 快捷入口 / 列表图标底 | `tertiaryContainer` + `primary`，或 `surfaceContainerHigh` + `onSurface` | 绿/黄/红/紫各来一个 |
 | 分组标题 | `SmallTitle` | `Text(style = title3)` |
 | 分隔线 | `HorizontalDivider` / `VerticalDivider` | Material `Divider` |
 | 按钮 | `Button` / `TextButton` | Material `Button` |
@@ -208,6 +229,8 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 | `references/scenario-state.md` | 状态页：加载/空（三种空）/错误/环境权限/引导、状态优先级 |
 | `references/scenario-adaptive.md` | 自适应：宽度分级阈值（官方 `AdaptiveUtils.kt`）、双窗格 list-detail、rail、限宽、折叠屏、RTL |
 | `references/scenario-onboarding.md` | 引导与权限：多步向导、权限四态与跳设置页、可关闭提示卡、完成标记持久化、与状态页的协作顺序 |
+| `references/status-colors.md` | **状态卡的红/黄/绿**：Miuix 为什么没有 success/warning token、四个项目的取值、成对定义规则、其余界面「黑白 + 强调色」清单 |
+| `references/showcase.md` | **可运行样张**：11 个编译通过的页面源码 + 11 张真实渲染截图，怎么重新生成、复制时改什么 |
 
 **按主题**
 
@@ -242,6 +265,8 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 - [ ] 图标逐个 import 了 `top.yukonga.miuix.kmp.icon.extended.<Name>`
 - [ ] 列表 `items` 有稳定 `key`；可变状态用 `rememberSaveable` 或 ViewModel
 - [ ] 深色模式下没有写死的浅色/深色假设（没有 `isSystemInDarkTheme()` 分支里的硬编码色）
+- [ ] 除状态卡外，一屏只有黑白灰 + 一个强调色；主按钮显式传了 `primary`（默认灰底）
+- [ ] 没有任何 `Preference` 被塞进另一个 `Preference` 的 `endActions`/`startAction`（运行时会崩）
 - [ ] 字符串走资源文件 / `stringResource`（Android 项目）
 - [ ] 新增的可组合函数参数顺序：必填回调 → `modifier` → Boolean → 视觉参数（带 `Defaults`） → `content` 放最后
 
@@ -268,6 +293,7 @@ node scripts/miuix-lint.mjs <项目或源码目录> [更多目录…] [--quiet]
 | `W6` | 分组 `Card` 内 Preference 行之间的分割线没有横向内边距 |
 | `W7` | 已有 `TopAppBar` 却又用 `statusBarsPadding()` |
 | `W8` | 有色容器里 `Icon` 缺 `tint`（浅色变黑 / 深色变白，见 `components.md` §0） |
+| `W9` | `Preference` 的 `endActions`/`startAction` 里又嵌套了 `Preference`（`maxIntrinsicHeight` 会抛 `IllegalArgumentException`） |
 
 ### 豁免
 

@@ -21,6 +21,7 @@
 //   W6 Card 内的 HorizontalDivider 没有 horizontal padding
 //   W7 有 TopAppBar 的页面又用了 statusBarsPadding()
 //   W8 有色容器（FAB / IconButton / Overlay*/Window* 自定义底色）里的 Icon 缺 tint
+//   W9 Preference 的 endActions/startAction 里又嵌套了 Preference（运行时会崩）
 //   I1 文本用了 Color.Black / Color.White（深色模式必然出问题）
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
@@ -180,14 +181,18 @@ for (const file of files) {
   }
 
   // ---- W1 hardcoded colors
+  const rawLines = raw.split('\n');
+  const allowAt = (idx) => {
+    const ln = lineOf(raw, idx);
+    return HARDCODED_OK.test(rawLines[ln - 1] ?? '') || HARDCODED_OK.test(rawLines[ln - 2] ?? '');
+  };
   for (const m of code.matchAll(/Color\(0x[0-9A-Fa-f]{6,8}\)/g)) {
-    const lt = lineText(raw, m.index);
-    if (HARDCODED_OK.test(lt) || HARDCODED_OK.test(lineText(raw, m.index - 1))) continue;
-    add('W1', file, lineOf(code, m.index), lt,
-      '硬编码颜色；优先用 MiuixTheme.colorScheme 的语义色。确需保留时在该行加 `// miuix-lint:allow` 并写明理由（逃生口就是 `miuix-lint:allow`）');
+    if (allowAt(m.index)) continue;
+    add('W1', file, lineOf(code, m.index), lineText(raw, m.index),
+      '硬编码颜色；优先用 MiuixTheme.colorScheme 的语义色。确需保留时在该行（或上一行）加 `// miuix-lint:allow` 并写明理由');
   }
   for (const m of code.matchAll(/\bColor\.(Black|White|Red|Green|Blue|Gray|Yellow|Magenta|Cyan)\b/g)) {
-    // 允许 Color.Unspecified / Color.Transparent 之外的极少数场景，但字面色一定提醒
+    if (allowAt(m.index)) continue;
     add('W1', file, lineOf(code, m.index), lineText(raw, m.index),
       `硬编码 Color.${m[1]}；改用 colorScheme 语义色（深色模式会不可读）`);
   }
@@ -328,6 +333,18 @@ for (const file of files) {
     }
   }
 
+  // ---- W9 Preference 嵌套（运行时会崩，不是风格问题）
+  for (const m of code.matchAll(/\b(?:endActions|startAction)\s*=\s*\{/g)) {
+    const braceIdx = code.indexOf('{', m.index);
+    const block = balancedCode(code, braceIdx);
+    if (!block) continue;
+    const nested = block.body.match(/\b[A-Z]\w*Preference\s*\(/);
+    if (nested) {
+      add('W9', file, lineOf(code, braceIdx), lineText(raw, braceIdx),
+        `${nested[0].replace(/\s*\($/, '')} 被放进了另一个 Preference 的 endActions/startAction。嵌套 BasicComponent 会在 maxIntrinsicHeight 抛 IllegalArgumentException；开关/复选请直接用 SwitchPreference / CheckboxPreference，不要在 endActions 里再包一层。`);
+    }
+  }
+
   // ---- W7 statusBarsPadding together with TopAppBar
   if (/(?:Small)?TopAppBar\s*\(/.test(code)) {
     for (const m of code.matchAll(/\.statusBarsPadding\(\)/g)) {
@@ -359,7 +376,7 @@ function findCallEnd(code, openParenIdx) {
 }
 
 // ---------------------------------------------------------------- report
-const order = { E2: 0, E3: 1, M1: 2, W1: 3, I1: 4, W2: 5, W3: 6, W4: 7, W5: 8, W6: 9, W7: 10, W8: 11 };
+const order = { E2: 0, E3: 1, M1: 2, W1: 3, I1: 4, W2: 5, W3: 6, W4: 7, W5: 8, W6: 9, W7: 10, W8: 11, W9: 12 };
 problems.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || order[a.sev] - order[b.sev]);
 
 const errors = problems.filter((p) => p.sev.startsWith('E'));
@@ -388,5 +405,5 @@ console.log(`扫描 ${files.length} 个 Kotlin 文件：${errors.length} 个 err
 if (errors.length) {
   console.log('error = 会编译失败或已被移除的 API：E2 旧版 API / E3 图标缺 import。');
 }
-console.log('warning = 规范问题：M1 Material 残留 / W1 硬编码颜色 / W2 顶栏缺 scrollBehavior / W3 列表缺滚动修饰符 / W4 弹层缺 Scaffold / W5-W7 间距与 insets / W8 有色容器里 Icon 缺 tint。');
+console.log('warning = 规范问题：M1 Material 残留 / W1 硬编码颜色 / W2 顶栏缺 scrollBehavior / W3 列表缺滚动修饰符 / W4 弹层缺 Scaffold / W5-W7 间距与 insets / W8 有色容器里 Icon 缺 tint / W9 嵌套 Preference（运行时崩溃）。');
 process.exit(errors.length ? 1 : 0);

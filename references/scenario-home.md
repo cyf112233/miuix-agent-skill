@@ -115,9 +115,11 @@ fun StatusCard(
         onClick = onClick,
     ) {
         Box(Modifier.fillMaxSize()) {
-            // 右下角超尺寸装饰图标，被卡片裁掉一部分 —— 这是原生观感的关键
+            // 右下角超尺寸装饰图标，被卡片裁掉一部分 —— 这是原生观感的关键。
+            // 形状要接近圆形：裸勾 MiuixIcons.Ok 被右下角裁掉后只剩一道斜线；
+            // lyricon 用的是「圆环 + 勾」矢量（Kotlin 版见 references/showcase/StatusIcons.kt）。
             Icon(
-                imageVector = if (active) MiuixIcons.Ok else MiuixIcons.Info,
+                imageVector = if (active) StatusIcons.Check else StatusIcons.Warning,
                 contentDescription = null,
                 tint = accentColor,
                 modifier = Modifier
@@ -153,20 +155,24 @@ fun StatusCard(
 | :-- | :-- |
 | 高度 | `140.dp`（固定；状态卡不怕矮，怕高度跳变） |
 | 圆角 | 默认 `CardDefaults.CornerRadius` = 16.dp，不要改 |
-| 底色 | 成功：浅 `#DFFAE4` / 深 `#102819`；异常：浅 `#FDECEE` / 深 `#402626` |
-| 强调色（图标） | 成功 `#36D167`；异常 `#E25B5B` |
+| 底色 | 正常：浅 `#DFFAE4` / 深 `#102819`；注意：浅 `#FFF4E0` / 深 `#2E2210`；异常：浅 `#FDECEE` / 深 `#402626` |
+| 强调色（图标） | 正常 `#36D167`；注意 `#F59E0B`；异常 `#D13636` |
 | 标题 | `20.sp` `SemiBold` |
 | 摘要 | `14.sp` `Medium`，`titleColor.copy(alpha = 0.68f)` |
 | 装饰图标 | `128.dp`，`offset(x = 28.dp, y = 34.dp)`，`Alignment.BottomEnd` |
 | 内边距 | `16.dp` |
 | 点击反馈 | `pressFeedbackType = PressFeedbackType.Tilt`（大卡用倾斜，小卡用 `Sink`） |
 
-**为什么这里允许硬编码颜色**：状态卡的「成功绿/异常红」需要比主题语义色更高的饱和度与更明确的语义，
-用 `tertiaryContainer`/`errorContainer` 会偏灰、状态不够醒目。这是 3 个项目的共同选择。
+**为什么这里允许硬编码颜色**：Miuix 的默认调色板**只有 `primary`（蓝）和 `error`（红）两类强语义色**，
+`secondary`/`secondaryContainer` 是灰（`#E6E6E6`/`#F0F0F0`），拿它当「成功」会得到一块灰底。
+真实项目的一致做法就是自己补一组绿/黄/红三态色——取值、出处与成对定义规则见 `status-colors.md`。
 代价是必须自己写 `isDark` 分支 —— 所以**一定要连前景色一起给**，否则深色模式下文字会糊在底色上。
 写完记得加注释说明（`miuix-lint.mjs` 的 W1 也要求这样）。
 
-**如果不想承担这个代价**，安全的替代方案是用纯语义色：
+**状态卡之外的界面不要跟着上色**：快捷入口、列表图标底、按钮都只用黑白灰 + `primary`。
+红/黄/绿各配一个圆形图标底，是最常见的「一看就不像原生」的做法（`status-colors.md` §5）。
+
+**如果不想承担这个代价**，安全的替代方案是用纯语义色（观感会偏灰，状态不够醒目）：
 
 ```kotlin
 Card(

@@ -2,22 +2,20 @@
 
 给 AI 编程 agent 用的 **Miuix** 界面构建技能包：让 agent 按统一规范产出 Miuix（小米 HyperOS · Compose Multiplatform）界面，而不是凭记忆瞎写 API。
 
-## 效果
-
-**DeepSeek Harness + DeepSeek v4.1 Flash（high 思考强度）** 配合本 skill 生成的界面，未做手工布局调整：
+## 样张：编译过、渲染过的界面
 
 <table>
   <tr>
-    <td><img src="image/01.jpg" width="220" alt=""></td>
-    <td><img src="image/02.jpg" width="220" alt=""></td>
-    <td><img src="image/03.jpg" width="220" alt=""></td>
-  </tr>
-  <tr>
-    <td><img src="image/04.jpg" width="220" alt=""></td>
-    <td><img src="image/05.jpg" width="220" alt=""></td>
-    <td><img src="image/06.jpg" width="220" alt=""></td>
+    <td><img src="assets/screens/home.png" width="200" alt="首页"></td>
+    <td><img src="assets/screens/settings.png" width="200" alt="设置"></td>
+    <td><img src="assets/screens/list.png" width="200" alt="列表"></td>
+    <td><img src="assets/screens/status-cards.png" width="200" alt="状态卡三态"></td>
   </tr>
 </table>
+
+这 11 张图来自 skill 内置的 `references/showcase/`（11 个 `.kt` 文件，对 **miuix 0.9.4** 编译通过，
+`miuix-lint` 0 error / 0 warning），用 Compose Desktop 离线渲染；深色版本在 `assets/screens/*-dark.png`。
+它们钉住的是**结构与观感**——状态卡、分组、顶栏、弹层、空态到底长什么样，可以对着抄。
 
 ## 安装
 
@@ -41,7 +39,7 @@ git clone https://github.com/cyf112233/miuix-agent-skill.git ~/.dsh/skills/miuix
 
 ## 内容
 
-8 个通用场景——主框架/多 Tab、首页仪表盘、通用列表、信息展示、表单编辑、状态页、自适应（大屏/折叠屏/RTL）、引导与权限——加设置页，每个都给可抄的完整结构。另含组件签名与默认值、主题配色、`miuix-nav` 导航、图标、旧版 API 迁移表、反模式清单，以及一个零依赖 lint：
+8 个通用场景——主框架/多 Tab、首页仪表盘、通用列表、信息展示、表单编辑、状态页、自适应（大屏/折叠屏/RTL）、引导与权限——加设置页，每个都给可抄的完整结构。另含组件签名与默认值、主题配色、**状态卡的红/黄/绿**（Miuix 没有 success/warning token，这里给出四个真实项目的取值与规则）、`miuix-nav` 导航、图标、旧版 API 迁移表、反模式清单，以及一个零依赖 lint：
 
 ```bash
 node scripts/miuix-lint.mjs <你的项目目录>
@@ -51,7 +49,10 @@ node scripts/miuix-lint.mjs <你的项目目录>
 
 ## 边界
 
-组件、参数、枚举与声称的默认值都经机器校验；**能否编译、观感是否到位，需要你在真实工程里验证**。
+- **符号、必填参数、枚举值、声称的默认值**：机器校验（206 个片段，974 个函数的 API 模型）
+- **内置样张**：编译通过、渲染通过、lint 0 error / 0 warning
+- **仍需真机**：insets、手势、动画、RTL、字体缩放；截图来自 Desktop target，不等于 Android/iOS 的逐像素结果
+- 场景规则标注了来源强度（库默认值 / 多数派惯例 / 单项目偏好 / 已被证伪），**单项目偏好不当规范**
 
 ## 许可
 
