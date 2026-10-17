@@ -133,8 +133,6 @@ colors = CardDefaults.defaultColors(
 - [ ] 出血图标是圆形轮廓（圆环 / logo），不是裸勾
 - [ ] `// miuix-lint:allow` 旁写了理由
 
-截图：`assets/screens/status-cards.png`（三态）、`home.png` / `home-dark.png`（真实用法）。
-
 ## 8. 出处
 
 | 文件 | 内容 |

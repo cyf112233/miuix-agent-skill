@@ -2,20 +2,10 @@
 
 给 AI 编程 agent 用的 **Miuix** 界面构建技能包：让 agent 按统一规范产出 Miuix（小米 HyperOS · Compose Multiplatform）界面，而不是凭记忆瞎写 API。
 
-## 样张：编译过、渲染过的界面
+## 样张：编译过的界面源码
 
-<table>
-  <tr>
-    <td><img src="assets/screens/home.png" width="200" alt="首页"></td>
-    <td><img src="assets/screens/settings.png" width="200" alt="设置"></td>
-    <td><img src="assets/screens/list.png" width="200" alt="列表"></td>
-    <td><img src="assets/screens/status-cards.png" width="200" alt="状态卡三态"></td>
-  </tr>
-</table>
-
-这 11 张图来自 skill 内置的 `references/showcase/`（11 个 `.kt` 文件，对 **miuix 0.9.4** 编译通过，
-`miuix-lint` 0 error / 0 warning），用 Compose Desktop 离线渲染；深色版本在 `assets/screens/*-dark.png`。
-它们钉住的是**结构与观感**——状态卡、分组、顶栏、弹层、空态到底长什么样，可以对着抄。
+`references/showcase/` 是 11 个**对 miuix 0.9.4 编译通过**的完整页面（首页、设置、列表、关于、表单、空态、引导、状态卡三态、深浅色主题），
+`miuix-lint` 跑出 0 error / 0 warning。文档里的结构、间距、颜色，都以这份源码为准——不贴截图，直接看代码。
 
 ## 安装
 
@@ -51,7 +41,7 @@ node scripts/miuix-lint.mjs <你的项目目录>
 
 - **符号、必填参数、枚举值、声称的默认值**：机器校验（206 个片段，974 个函数的 API 模型）
 - **内置样张**：编译通过、渲染通过、lint 0 error / 0 warning
-- **仍需真机**：insets、手势、动画、RTL、字体缩放；截图来自 Desktop target，不等于 Android/iOS 的逐像素结果
+- **仍需真机**：insets、手势、动画、RTL、字体缩放（样张只在 Desktop target 编译，没有真机验证）
 - 场景规则标注了来源强度（库默认值 / 多数派惯例 / 单项目偏好 / 已被证伪），**单项目偏好不当规范**
 
 ## 许可
