@@ -3,7 +3,7 @@ name: miuix-ui
 description: "用 Miuix（小米 HyperOS 设计规范的 Compose Multiplatform UI 库，top.yukonga.miuix.kmp）构建界面。按 8 个通用场景组织（主框架/多 Tab、首页/仪表盘、通用列表、信息展示、表单/编辑、状态页、自适应、引导与权限），设置页单独成篇。结构约定来自官方 example 与 8 个真实开源项目的交叉比对；SKILL.md 内按「库默认值 / 多数派惯例 / 单项目偏好 / 已被证伪」四级标注来源强度，不把单项目偏好当规范。覆盖依赖版本、MiuixTheme/ThemeController 配色与文本样式、Scaffold + TopAppBar + LazyColumn 页面骨架、SmallTitle + Card + XxxPreference 分组列表、对话框/底部抽屉/下拉菜单、miuix-nav 导航、icons、squircle/blur/overscroll、旧版 API 迁移，一个配套的零依赖 lint（E2/E3 + W1–W9），以及 11 个对 0.9.4 编译通过的样张源码（`references/showcase/`）。状态卡的红/黄/绿有专门一章（Miuix 没有 success/warning token，这里给出 InstallerX / lyricon / OShin / Updater 四个项目的取值与出处）。适用于任何要求 miuix 风格、HyperOS 风格、小米原生观感的 Compose/KMP/Android 界面任务：写首页、写列表页、写关于/信息页、写表单、做设置页、搭 Tab 框架、处理空/加载/错误/权限态、适配大屏与折叠屏、调主题配色，或把 Material 界面迁移到 Miuix。另含桌面端交付的一章（§8）：把写好的 Compose Desktop / Miuix 应用用 GraalVM native-image 打成单文件 exe、GPU（OpenGL）渲染、封闭世界 JNI 四类注册、`java.home` 为 null 的 `jawt.dll` 坑、@argfile 绕开 cmd 8191 字符上限、离屏自检与帧率量化，附 dll 类名扫描器与 argfile 生成器。Triggers: miuix, MiuixTheme, HyperOS UI, 小米风格, 澎湃 UI, mui 界面, 写个设置页, 写个首页, 写个列表页, 用 miuix 做个页面, miuix 主题, miuix 组件, top.yukonga.miuix, native-image, GraalVM, 打成 exe, 单文件 exe, Compose Desktop 打包, skiko, jawt, JNI 注册, jni-config, GPU 渲染, OpenGL 渲染, 启动耗时, 帧率."
 ---
 
-# 用 Miuix 构建界面
+# 用 Miuix 构建界面（§8：交付成 exe）
 
 Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android / iOS / Desktop / macOS / Wasm / JS）。
 
