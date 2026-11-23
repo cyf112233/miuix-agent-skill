@@ -19,3 +19,17 @@ Third-party material
   them, and the code samples in this repository are illustrative
   re-implementations rather than copies. See the "来源与致谢" section of
   README.md for the list.
+
+Modifications
+-------------
+This repository was extended with a second chapter, "把桌面应用打成 exe"
+(GraalVM native-image packaging for Compose Desktop / Miuix, Windows x64),
+distributed as references/native-image.md, references/native-image/*.md and
+scripts/native-image/*. That material was previously published as a separate
+skill named "miuix-native-image". When merged, only its file locations, section
+numbering and intra-document links were adjusted; its technical content and
+conclusions are unchanged.
+
+Files modified from the original release: SKILL.md (description, new section 8,
+reference index, one checklist item), README.md, NOTICE, and a new
+.gitattributes. All other existing files are byte-identical to the original.

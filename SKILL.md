@@ -1,6 +1,6 @@
 ---
 name: miuix-ui
-description: "用 Miuix（小米 HyperOS 设计规范的 Compose Multiplatform UI 库，top.yukonga.miuix.kmp）构建界面。按 8 个通用场景组织（主框架/多 Tab、首页/仪表盘、通用列表、信息展示、表单/编辑、状态页、自适应、引导与权限），设置页单独成篇。结构约定来自官方 example 与 8 个真实开源项目的交叉比对；SKILL.md 内按「库默认值 / 多数派惯例 / 单项目偏好 / 已被证伪」四级标注来源强度，不把单项目偏好当规范。覆盖依赖版本、MiuixTheme/ThemeController 配色与文本样式、Scaffold + TopAppBar + LazyColumn 页面骨架、SmallTitle + Card + XxxPreference 分组列表、对话框/底部抽屉/下拉菜单、miuix-nav 导航、icons、squircle/blur/overscroll、旧版 API 迁移，一个配套的零依赖 lint（E2/E3 + W1–W9），以及 11 个对 0.9.4 编译通过的样张源码（`references/showcase/`）。状态卡的红/黄/绿有专门一章（Miuix 没有 success/warning token，这里给出 InstallerX / lyricon / OShin / Updater 四个项目的取值与出处）。适用于任何要求 miuix 风格、HyperOS 风格、小米原生观感的 Compose/KMP/Android 界面任务：写首页、写列表页、写关于/信息页、写表单、做设置页、搭 Tab 框架、处理空/加载/错误/权限态、适配大屏与折叠屏、调主题配色，或把 Material 界面迁移到 Miuix。Triggers: miuix, MiuixTheme, HyperOS UI, 小米风格, 澎湃 UI, mui 界面, 写个设置页, 写个首页, 写个列表页, 用 miuix 做个页面, miuix 主题, miuix 组件, top.yukonga.miuix."
+description: "用 Miuix（小米 HyperOS 设计规范的 Compose Multiplatform UI 库，top.yukonga.miuix.kmp）构建界面。按 8 个通用场景组织（主框架/多 Tab、首页/仪表盘、通用列表、信息展示、表单/编辑、状态页、自适应、引导与权限），设置页单独成篇。结构约定来自官方 example 与 8 个真实开源项目的交叉比对；SKILL.md 内按「库默认值 / 多数派惯例 / 单项目偏好 / 已被证伪」四级标注来源强度，不把单项目偏好当规范。覆盖依赖版本、MiuixTheme/ThemeController 配色与文本样式、Scaffold + TopAppBar + LazyColumn 页面骨架、SmallTitle + Card + XxxPreference 分组列表、对话框/底部抽屉/下拉菜单、miuix-nav 导航、icons、squircle/blur/overscroll、旧版 API 迁移，一个配套的零依赖 lint（E2/E3 + W1–W9），以及 11 个对 0.9.4 编译通过的样张源码（`references/showcase/`）。状态卡的红/黄/绿有专门一章（Miuix 没有 success/warning token，这里给出 InstallerX / lyricon / OShin / Updater 四个项目的取值与出处）。适用于任何要求 miuix 风格、HyperOS 风格、小米原生观感的 Compose/KMP/Android 界面任务：写首页、写列表页、写关于/信息页、写表单、做设置页、搭 Tab 框架、处理空/加载/错误/权限态、适配大屏与折叠屏、调主题配色，或把 Material 界面迁移到 Miuix。另含桌面端交付的一章（§8）：把写好的 Compose Desktop / Miuix 应用用 GraalVM native-image 打成单文件 exe、GPU（OpenGL）渲染、封闭世界 JNI 四类注册、`java.home` 为 null 的 `jawt.dll` 坑、@argfile 绕开 cmd 8191 字符上限、离屏自检与帧率量化，附 dll 类名扫描器与 argfile 生成器。Triggers: miuix, MiuixTheme, HyperOS UI, 小米风格, 澎湃 UI, mui 界面, 写个设置页, 写个首页, 写个列表页, 用 miuix 做个页面, miuix 主题, miuix 组件, top.yukonga.miuix, native-image, GraalVM, 打成 exe, 单文件 exe, Compose Desktop 打包, skiko, jawt, JNI 注册, jni-config, GPU 渲染, OpenGL 渲染, 启动耗时, 帧率."
 ---
 
 # 用 Miuix 构建界面
@@ -21,6 +21,15 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 | [Payload-Dumper-Compose](https://github.com/rcmiku/Payload-Dumper-Compose) | 0.3.4 | 旧 API 最小示例 |
 
 **照抄本 skill 的写法 = 直接得到「原生」观感。不要自创布局数值。**
+
+**本 skill 有两条主线，按需求只读其中一条：**
+
+| 主线 | 回答的问题 | 读哪里 |
+| :-- | :-- | :-- |
+| **界面怎么长** | 骨架、间距、配色、组件选型、空/错/权限态 | §1–§7 + `references/scenario-*.md`、`references/components*.md` |
+| **怎么交付成 exe** | GraalVM native-image 打包、JNI 注册、GPU 渲染、启动/帧率验证、排障 | §8 + `references/native-image.md` |
+
+前者对 Android / iOS / Desktop / Wasm 都适用；后者只对 **Desktop target** 有意义（Android 走 R8/APK）。两条主线互不依赖，做界面时不必读打包章。
 
 ---
 
@@ -230,6 +239,17 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 | `references/recipes.md` | 横切配方：开关联动、确认/输入弹窗、底部抽屉、下拉选择、顶栏动作菜单、下拉刷新、项目级可复用容器、Material 迁移映射 |
 | `references/pitfalls.md` | 反模式清单、常见编译/运行错误、旧版本 API 迁移表、版本差异 |
 
+**按阶段（桌面交付，仅 Desktop target）**
+
+| 文件 | 内容 |
+| :-- | :-- |
+| `references/native-image.md` | 打包章总纲：三个硬条件、五步流水线、四类 JNI 注册、渲染后端选型、`java.home`、交付形态、验证矩阵、实测基线、坑表 |
+| `references/native-image/toolchain.md` | Liberica NIK **full** 选型与验证、MSVC 环境变量（不依赖 `vcvars64.bat`）、Gradle 镜像与 wrapper 预置、5 行自检 |
+| `references/native-image/jni.md` | 封闭世界 JNI 机制：`FindClass` 为什么返回 null、四份 jni-config 各管一段、扫描器原理、注册 AWT 后的连锁反应 |
+| `references/native-image/gpu-opengl.md` | Skia GL 后端、`glctx.c` 全文（WGL + 隐藏窗口）、JNI 命名与加载顺序、离屏 `readPixels` 验证、RDP 兜底 |
+| `references/native-image/pitfalls.md` | 打包坑表 P1–P20：症状、堆栈原文、根因、修法、怎么确认修好了 |
+| `references/native-image/verification.md` | `--selftest` 九阶段、`withFrameNanos` 帧间隔统计、启动/内存测量、离屏窗口计数法 |
+
 > 参考文件里出现的 `/root/miuix/repos/...` 绝对路径是**产出机器的 provenance**，换机器即失效；它们是「结论出处」不是「必读清单」。
 
 ---
@@ -251,6 +271,7 @@ Miuix 是小米 HyperOS 设计规范的 Compose Multiplatform UI 库（Android /
 - [ ] 没有任何 `Preference` 被塞进另一个 `Preference` 的 `endActions`/`startAction`（运行时会崩）
 - [ ] 字符串走资源文件 / `stringResource`（Android 项目）
 - [ ] 新增的可组合函数参数顺序：必填回调 → `modifier` → Boolean → 视觉参数（带 `Defaults`） → `content` 放最后
+- [ ] （桌面交付）要发 exe 的话，再跑 `references/native-image.md` §10 的 9 项打包自检
 
 ---
 
@@ -290,3 +311,59 @@ W4 跳过 10 处 Overlay*：10 处因检出共享 Scaffold 宿主（MiuixPageSca
 ```
 
 容器在**未被扫描的模块**里时（例如只传了 `app/` 而容器在 `:core:ui`），把两个目录都传给脚本，或在文件里加 `// miuix-lint:allow-scaffold`。`window.Window*` 族 `requiresScaffoldHost = false`，本来就不检查。
+
+---
+
+## 8. 交付：把桌面应用打成 exe（GraalVM native-image）
+
+> **只在 Desktop target 上用**。Android 走 R8/APK、Wasm 走 wasm 产物，本章不适用。
+> 完整内容见 `references/native-image.md`；这一节只给「要不要读、先做什么、最容易死在哪」。
+
+**什么时候读这一章**：要把 Compose Desktop / Miuix 应用发成单个 exe；native-image 构建报错；编出来了但一启动就崩在 `FindClass` / `NoClassDefFoundError` / 窗口打不开 / 黑屏 / GPU 没生效；exe 换台机器跑不起来；想量化启动耗时与帧率。
+
+**三个硬条件**（缺一个，后面所有 JNI 排查都是白费）：
+
+1. JDK 必须是 **Liberica NIK `full`**——`standard` 与 GraalVM CE 都缺 `bin\jawt.dll`，窗口阶段直接 `NoClassDefFoundError: java/awt/Canvas`；
+2. 有 **MSVC 链接器**（Build Tools 够）+ Windows SDK；
+3. `native-image.cmd` 与 MSVC 的 `bin` 都在 PATH，`INCLUDE`/`LIB` 显式指向它们——**不要靠 `vcvars64.bat`**（内部调 `reg.exe`/`vswhere`，受限账户下被拦且报错极具误导性）。
+
+**五步流水线**（细节见 `references/native-image.md` §2）：
+
+```text
+① gradle: compileKotlinJvm + jvmProcessResources + printRuntimeCp   →  build/runtime-cp.txt
+② python scripts/native-image/scan-class-literals.py <dll> → jni-config-*.json   ← 整件事的核心
+③ python scripts/native-image/gen-args.py --proj . --main <MainKt> --out build/app --gui
+④ native-image.cmd @build/ni-args-gui-app.txt
+⑤ 离屏自检（--selftest / --gpu）→ 真开窗看一眼 → 交付
+```
+
+**四类 JNI 注册，缺一类就崩**（`native-image` 是封闭世界，`FindClass` 查的是构建期定死的表）：
+
+| # | 注册对象 | 数量 | 漏了的表现 |
+| :-- | :-- | :-- | :-- |
+| 1 | `skiko-windows-x64.dll` 里的类字面量 | 52 | 崩在 `Paragraph.layout()`，窗口都出不来 |
+| 2 | `awt.dll` 里的类字面量 | 146 | `NoClassDefFoundError: java/awt/Canvas`，堆栈在 `WToolkit.eventLoop(Native Method)` |
+| 3 | 自己的 JNI 桥 | 按需 | `UnsatisfiedLinkError` |
+| 4 | skia 基础绑定 `org.jetbrains.skia.*` | 31 / 441 | 图片编解码/字体随机崩 |
+
+只配第 4 类是最常见的误判：`jni-config.json` 里有 31 个 `org.jetbrains.skia.*` 看起来「配好了」，但 skiko 的 Kotlin 层是 dll 用字符串找的，不在那张表里。
+
+**五条最贵的坑**（全表 P1–P20 在 `references/native-image/pitfalls.md`）：
+
+| 症状 | 根因 | 修法 |
+| :-- | :-- | :-- |
+| exe 只有 30 多 MB，跑起来没有 Compose | classpath 13.8k 字符被 cmd 的 8191 上限静默截断 | 一律走 `@argfile`，并打印字符数 |
+| `Cannot open (null)\bin\jawt.dll` | native-image 里 `java.home` 是 null | `main()` 第一件事把 `java.home` 指向 exe 目录 + 交付 `bin\jawt.dll` |
+| 改了 exe 文件名就启动崩 | GraalVM 按**输出名**定位同目录原生库 | 不改文件名，要中文名改快捷方式 |
+| GPU 没生效、日志只有 `软件渲染` | `DIRECT3D` 在 native-image 下静默降级 | 显式设 `skiko.renderApi=OPENGL`；RDP 下用 `SOFTWARE_FAST` 兜底 |
+| 双击闪退、无任何信息 | `/SUBSYSTEM:WINDOWS` 吞掉 stderr | 先编控制台版复现，稳定后再切 GUI 版 |
+
+**工具**（都在 `scripts/native-image/`，零第三方依赖）：
+
+| 文件 | 用途 |
+| :-- | :-- |
+| `scan-class-literals.py` | 扫 dll 里的 Java 类路径字面量 → `jni-config.json`（多文件可合并、去重） |
+| `gen-args.py` | 生成 @argfile：classpath、`-H:IncludeResources`、JNI 清单、GUI 子系统，并打印 classpath 字符数 |
+| `ni-env.bat` | MSVC + NIK 环境变量模板（不调 vcvars） |
+
+**交付前**：`references/native-image.md` §10 有 9 项自检，最容易漏的是「交付目录里没有 `bin\jawt.dll`」「exe 被改名」「只在自己装了 JDK 的机器上跑过」。
