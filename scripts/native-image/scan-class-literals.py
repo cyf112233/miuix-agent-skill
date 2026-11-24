@@ -6,11 +6,16 @@
 而且堆栈停在 Native Method，看不出是谁干的。构建期完全不会报错。
 
 用法：
-    # 扫单个 dll
+    # 扫单个原生库（.dll / .so / .dylib 都支持）
     python scan-class-literals.py skiko-windows-x64.dll -o jni-config-literals.json
 
-    # 扫多个 dll 合并成一份（推荐，一次搞定 skiko + awt）
+    # 扫多个合并成一份（推荐，一次搞定 skiko + awt）
     python scan-class-literals.py skiko-windows-x64.dll awt.dll -o jni-config-runtime.json
+
+    # Linux：扫 skiko 的 .so 与 JDK 自带的 AWT 原生库
+    python scan-class-literals.py libskiko-linux-x64.so \
+        $JAVA_HOME/lib/libawt.so $JAVA_HOME/lib/libawt_xawt.so \
+        $JAVA_HOME/lib/libfontmanager.so -o native-image/jni-config.scan.json
 
     # 追加到已有文件（保留手工条目）
     python scan-class-literals.py awt.dll -o jni-config.json --merge
@@ -19,8 +24,19 @@
     python scan-class-literals.py skiko-windows-x64.dll --dry-run
 
 实测数量（供对照，不是标准）：
-    skiko-windows-x64.dll → 49 条
-    awt.dll               → 146 条
+    skiko-windows-x64.dll  → 49 条
+    awt.dll                → 146 条
+    libskiko-linux-x64.so  → 48 条
+    libawt.so              → 46 条
+    libawt_xawt.so         → 54 条
+    libfontmanager.so      → 13 条
+
+注意（Linux 实测，重要）：扫描只能抓到 `FindClass("java/awt/Canvas")` 这类**字符串**字面量。
+AWT 里还有大量「把 jclass 直接当参数传进 native 方法」的写法（`sun.java2d.SurfaceData.initIDs`
+取 `pData` 字段就是典型），二进制里没有类名字符串，**扫不到但必须注册**，否则运行期
+`NoSuchFieldError`/`NoClassDefFoundError` 崩在窗口初始化。补法是跑 tracing agent：
+    java -agentlib:native-image-agent=config-output-dir=ni-agent -cp <cp> MainKt
+再与扫描结果合并（scripts/native-image/merge-ni-config.py）。见 references/native-image/linux.md §6。
 """
 
 import argparse
@@ -157,8 +173,9 @@ def main():
         json.dump(entries, f, ensure_ascii=False, indent=0)
         f.write("\n")
     print("\n写入 %s（%d 条）" % (args.out, len(entries)))
+    shown = args.out.replace("/", "\\") if os.name == "nt" else args.out
     print("别忘了加进 native-image 参数：")
-    print("  -H:JNIConfigurationFiles=%s" % args.out.replace("/", "\\"))
+    print("  -H:JNIConfigurationFiles=%s" % shown)
     return 0
 
 

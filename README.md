@@ -7,7 +7,7 @@
 | 主线 | 回答的问题 | 入口 |
 | :-- | :-- | :-- |
 | 界面怎么长 | Scaffold 骨架、间距栅格、Preference 分组、配色、空/错/权限态、自适应 | `SKILL.md` §1–§7 + `references/` |
-| 怎么交付成 exe | GraalVM native-image 打包、JNI 注册、OpenGL 渲染、启动/帧率验证、排障 | `SKILL.md` §8 + `references/native-image.md` |
+| 怎么交付成 exe | GraalVM native-image 打包、JNI 注册、OpenGL 渲染、启动/帧率验证、排障（Windows / Linux） | `SKILL.md` §8 + `references/native-image.md` |
 
 前者对 Android / iOS / Desktop / Wasm 通用；后者只对 **Desktop target**（Windows x64 实测）有意义。两条主线互不依赖，做界面不必读打包章。
 
@@ -24,9 +24,12 @@ miuix-agent-skill/
 │   ├── showcase/                # 11 个编译通过的样张源码
 │   ├── native-image.md          # 打包章总纲（原 miuix-native-image skill）
 │   └── native-image/            # 打包细节：toolchain / jni / gpu-opengl / pitfalls / verification
-└── scripts/
-    ├── miuix-lint.mjs           # 界面 lint（E2/E3 + W1–W9）
-    └── native-image/            # scan-class-literals.py / gen-args.py / ni-env.bat
+│       └── linux.md             # Linux 篇（实测）：tracing agent、java.lang.Thread、原生库布局、llvmpipe
+├── scripts/
+│   ├── miuix-lint.mjs           # 界面 lint（E2/E3 + W1–W9）
+│   └── native-image/            # scan-class-literals.py / gen-args.py / merge-ni-config.py / ni-env.bat
+└── examples/
+    └── linux-smoke/             # 可复现样例：Miuix 页面 + Linux native-image 全流程
 ```
 
 ## 样张：编译过的界面源码
@@ -69,6 +72,8 @@ python scripts/native-image/scan-class-literals.py skiko-windows-x64.dll -o nati
 python scripts/native-image/gen-args.py --proj . --main com.example.MainKt --out build/app --gui
 ```
 
+**Linux（`references/native-image/linux.md`）**：同一套代码在 X11 + 无 GPU 环境编过、跑过、截过图。与 Windows 的实质差异：GraalVM 官方包即可（不用 NIK full）、产物多出 8 个 `.so`、**JNI 必须用 tracing agent 补**（扫 `.so` 抓不到 `SurfaceData.pData` 这类）、`java.lang.Thread` 注册与链接的悖论、`libjawt.so` 缺失直接段错误、`skiko.renderApi=OPENGL` 在 llvmpipe/virgl 上被黑名单拒绝、缺 CJK 字体是 `Could not load font` 卡死。实测 139 MB / 0.12 s 启动。
+
 界面侧的规则标注了来源强度（库默认值 / 多数派惯例 / 单项目偏好 / 已被证伪），**单项目偏好不当规范**。
 
 ## 边界
@@ -81,8 +86,9 @@ python scripts/native-image/gen-args.py --proj . --main com.example.MainKt --out
 
 **打包**
 
-- **只验证了 Windows x64**。Linux/macOS 的 native-image + AWT/skiko 是另一套坑，参数不能直接照抄
+- **Windows x64 与 Linux x64（X11、无 GPU）各验证一遍**。两边的 JDK 选型、JNI 收集方式、原生库布局、渲染后端行为都不同，参数不能互换；macOS 未验证
 - **`DIRECT3D` 没解决**，只给了绕开方案（`OPENGL`）；skiko 缺 `OpenGLOffscreenContext` 原生导出是上游问题，这里给的是自建桥
+- **Linux 真 GPU、Wayland、高 DPI、输入法、ARM64/musl 未验证**（清单见 `linux.md` §15）
 - 版本组合（NIK 23.1.8 / Compose 1.13.0-beta02 / miuix 0.9.4 / skiko 0.156.1）是实测值，升级后请重跑 `--selftest`
 
 ## 本次变更（合并 `miuix-native-image`）
@@ -96,6 +102,17 @@ python scripts/native-image/gen-args.py --proj . --main com.example.MainKt --out
 | 新增 `scripts/native-image/` | 原 3 个脚本，内容未改 |
 | 修改 `SKILL.md` | `description` 增加打包触发词；新增 §8 打包章（只做路由与高频坑，不复述细节）；参考索引与自检清单各加一项 |
 | 未改动 | 原有 `references/`、`showcase/`、`miuix-lint.mjs`、`image/` 全部未动 |
+
+**第二轮（Linux 实测后）**：
+
+| 变更 | 说明 |
+| :-- | :-- |
+| 新增 `references/native-image/linux.md` | 15 节：环境、与 Windows 差异表、tracing agent、`java.lang.Thread` 三态对比、原生库布局、llvmpipe 黑名单、字体、坑表 L1–L10、未验证清单 |
+| 新增 `examples/linux-smoke/` | 可复现样例（Gradle 工程 + `thread_stub.c` + `run.sh` + 7 步复现说明） |
+| 新增 `scripts/native-image/merge-ni-config.py` | 合并「扫 `.so`」与「tracing agent」两份配置，Linux 必需 |
+| 改 `scripts/native-image/gen-args.py` | 支持 `--target windows/linux`、跨平台分隔符、`--config-dir`、`--link-obj`（Windows 行为不变） |
+| 改 `SKILL.md` §8 | 增「Linux 分支」小节（四处硬差异 + 五步命令） |
+| 新增触发词 | Linux 打包 / native-image-agent / llvmpipe / libjawt.so |
 
 合并原则：**一个 skill 一个入口，深度内容走 references 渐进加载**。若拆成两个 skill，`description` 里的触发词会互相竞争，且「界面已经写完、只差打包」这种上下文在两者之间会丢；放进同一 skill 后，§8 只占 ~50 行，做界面时不必读。
 

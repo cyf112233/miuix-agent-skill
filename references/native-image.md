@@ -14,6 +14,8 @@
 
 **只对 Desktop target 有意义**：Android 走 R8/APK，Wasm/iOS 各有各的产物体，不适用本章。
 
+> 本章以 **Windows x64** 为主线。**Linux 的流程与坑有实质差异**（JDK 选型、JNI 收集方式、原生库布局、渲染后端黑名单），已在 X11 + 无 GPU 环境完整跑通一遍，见 [`references/native-image/linux.md`](linux.md)——跨平台前先读它，别照抄本章的参数。
+
 **一句话工作流**：`gradle 出 classpath` → `扫原生库的类字面量生成 jni-config` → `生成 @argfile` → `native-image` → **离屏自检** → 交付。
 
 ---
@@ -44,6 +46,11 @@
         ↓  这里解决 classpath 超 8191 字符、资源 include、JNI 配置清单
 ④ native-image.cmd @build/ni-args-gui-app.txt            →  exe + 十几个 dll
 ⑤ 离屏自检（--selftest / --gpu）→ 真开窗一眼 → 交付
+
+# Linux 多一步（实测必需）：
+# ②' java -agentlib:native-image-agent=config-output-dir=ni-agent -cp <cp> MainKt
+#     扫 .so 抓不到「把 jclass 当参数」的 native 方法（如 SurfaceData.pData），
+#     只有运行期追踪能补全。合并见 scripts/native-image/merge-ni-config.py
 ```
 
 **第 ② 步是整件事的核心**，不是可选优化。原因见下一节。
@@ -259,6 +266,10 @@ dist/
 | 高 DPI 下窗口跑到屏幕外 | 逻辑尺寸 × 缩放 > 屏幕 | 见 `references/native-image/pitfalls.md` P14 |
 | 字体全豆腐块 | compose 资源没进 classpath / 没进镜像 | `-H:IncludeResources=.*\.(ttf|otf)$` + 资源根目录正确 |
 | `expect`/`actual` 编译不过 | 纯 `kotlin("jvm")` 不支持 | 换 `kotlin("multiplatform")`，只声明 `jvm()` |
+| Linux：`NoClassDefFoundError: ... sun.awt.X11.XToolkit` | `NoSuchFieldError: sun.java2d.SurfaceData.pData`，扫 `.so` 扫不到该类 | tracing agent 补 jni-config（`linux.md` §6） |
+| Linux：链接期 `undefined reference to Java_java_lang_Thread_get…` | 注册了 `java.lang.Thread` 且带方法表 | 全注册 + 自带 `thread_stub.o`（`linux.md` §7） |
+| Linux：`Cannot open …/lib/libjawt.so` 后**段错误** | `java.home` 为 null、`libjawt.so` 没随包 | 设 `java.home` + 交付 `lib/libjawt.so`（`linux.md` §8） |
+| Linux：`Could not load font`，进程卡死 | 目标机没有 fontconfig / CJK 字体 | 装字体或把 ttf 打进镜像（`linux.md` §10） |
 
 ---
 
@@ -285,6 +296,7 @@ dist/
 | `references/native-image/gpu-opengl.md` | Skia GL 后端、`glctx.c` 全文、JNI 命名与加载顺序、离屏 `readPixels` 验证、为什么不能直接用 `OpenGLOffscreenContext` |
 | `references/native-image/pitfalls.md` | P1–P20 坑表：症状、堆栈原文、根因、修法、如何验证修好了 |
 | `references/native-image/verification.md` | `--selftest` 九阶段实现、`withFrameNanos` 帧间隔统计、启动/内存测量脚本、离屏窗口计数法 |
+| `references/native-image/linux.md` | **Linux 篇（实测）**：工具链、tracing agent、`java.lang.Thread`、原生库布局、llvmpipe 黑名单、字体、坑表 L1–L10 |
 
 脚本（都在 `scripts/native-image/` 下，Python 3 / Windows bat，零第三方依赖）：
 
@@ -293,6 +305,7 @@ dist/
 | `scripts/native-image/scan-class-literals.py` | 扫 dll 里的 Java 类路径字面量 → jni-config.json（可多文件合并、可去重） |
 | `scripts/native-image/gen-args.py` | 参数化生成 native-image @argfile（classpath、资源、JNI 清单、GUI 子系统） |
 | `scripts/native-image/ni-env.bat` | MSVC + NIK 环境变量模板（不调 vcvars） |
+| `scripts/native-image/merge-ni-config.py` | 把扫描结果与 tracing agent 的配置合并成 `-H:ConfigurationFileDirectories` 目录（Linux 必需） |
 
 ---
 
