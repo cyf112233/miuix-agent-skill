@@ -340,7 +340,7 @@ dist/
 
 **已知边界**：
 
-- **只验证了 Windows x64**。Linux/macOS 的 native-image + AWT/skiko 是另一套坑，本文参数不能直接照抄。
+- **Windows x64 与 Linux x64（X11、无 GPU）各验证一遍**。两边的 JDK 选型、JNI 收集方式、原生库布局、渲染后端行为都不同，参数不能互换；macOS 未验证。Linux 见 `references/native-image/linux.md`。
 - **`DIRECT3D` 未解决**，只给了绕开方案（`OPENGL`）。
 - **skiko 的 `OpenGLOffscreenContext` 缺失是上游问题**，本章给的是自建桥，不是修复上游。
 - 帧率数据来自 1280×720、Intel UHD 630 的机器；高分辨率/高刷屏请自行复测。
