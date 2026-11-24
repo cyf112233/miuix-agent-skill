@@ -115,7 +115,7 @@ val cp = configurations.runtimeClasspath.get().files.joinToString(sep) { it.abso
 
 ### 4.2 镜像里的 classpath 长度
 
-实测 Compose 1.12.2 + miuix 0.9.4 + skiko 0.150.2 的**运行时 classpath 是 9477 字符**（约 50 个 jar）。
+实测 Compose 1.12.2 + miuix 0.9.4 + skiko 0.150.2：`runtime-cp.txt` 本身 **9477 字符**（约 50 个 jar），加上 classes/resources 后 argfile 里的 `-cp` 是 **9520 字符**。
 Linux 不受 8191 限制，但一份 argfile 仍然值得：参数可复现、可 diff、可提交进仓库。
 
 ### 4.3 argfile（实测可用）
